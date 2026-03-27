@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google AI Studio | Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-main: #131314;
+        --bg-panel: #1E1F20;
+        --border-color: #444746;
+      }
+      html, body {
+        overscroll-behavior: none;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-main);
+        color: #E3E3E3;
+        margin: 0;
+        -webkit-font-smoothing: antialiased;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+      
+      /* Premium Selection */
+      ::selection {
+        background: rgba(0, 122, 255, 0.3);
+        color: white;
+      }
+
+      /* Custom Scrollbar - AI Studio Style */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #444746; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #5E5E5E; }
+
+      /* Animation Utilities */
+      .animate-enter-user {
+        animation: enter-user 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+      .animate-enter-bot {
+        animation: enter-bot 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+      
+      @keyframes enter-user {
+        from { opacity: 0; transform: translateX(15px) scale(0.98); }
+        to { opacity: 1; transform: translateX(0) scale(1); }
+      }
+      @keyframes enter-bot {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in-up {
+        animation: enter-bot 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+
+      @keyframes slow-glow {
+        0% { box-shadow: 0 0 20px rgba(100, 200, 255, 0.1), inset 0 0 10px rgba(100, 200, 255, 0.05); border-color: rgba(255,255,255,0.1); }
+        50% { box-shadow: 0 0 40px rgba(100, 200, 255, 0.3), inset 0 0 20px rgba(100, 200, 255, 0.1); border-color: rgba(255,255,255,0.4); }
+        100% { box-shadow: 0 0 20px rgba(100, 200, 255, 0.1), inset 0 0 10px rgba(100, 200, 255, 0.05); border-color: rgba(255,255,255,0.1); }
+      }
+      .animate-slow-glow {
+        animation: slow-glow 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translate(0, 0); }
+        25% { transform: translate(30px, -30px); }
+        50% { transform: translate(-10px, 10px); }
+        75% { transform: translate(-30px, -10px); }
+      }
+
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+
+      .thinking-dot {
+        animation: think-bounce 1.4s infinite ease-in-out both;
+      }
+      .thinking-dot:nth-child(1) { animation-delay: -0.32s; }
+      .thinking-dot:nth-child(2) { animation-delay: -0.16s; }
+      @keyframes think-bounce {
+        0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+        40% { transform: scale(1); opacity: 1; }
+      }
+
+      @keyframes logo-spin {
+        0% { transform: rotate(0deg) scale(1.1); }
+        50% { transform: rotate(180deg) scale(0.9); }
+        100% { transform: rotate(360deg) scale(1.1); }
+      }
+      @keyframes logo-flip {
+        0% { transform: perspective(400px) rotateY(0); }
+        100% { transform: perspective(400px) rotateY(360deg); }
+      }
+      @keyframes logo-wobble {
+        0%, 100% { transform: rotate(0deg) scale(1); }
+        25% { transform: rotate(-25deg) scale(1.2); }
+        75% { transform: rotate(25deg) scale(1.2); }
+      }
+      @keyframes logo-zoom {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.4); }
+      }
+      @keyframes logo-shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-15px) rotate(-10deg); }
+        40%, 80% { transform: translateX(15px) rotate(10deg); }
+      }
+      .animate-logo-spin {
+        animation: logo-spin 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+      }
+
+      /* Glass Effect Utility - iOS Blur */
+      .glass {
+        background: rgba(20, 20, 20, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "react-markdown": "https://esm.sh/react-markdown@9.0.1",
+    "react-syntax-highlighter": "https://esm.sh/react-syntax-highlighter@16.1.1",
+    "react-syntax-highlighter/dist/esm/styles/prism": "https://esm.sh/react-syntax-highlighter@16.1.1/dist/esm/styles/prism"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

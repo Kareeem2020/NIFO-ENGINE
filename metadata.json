@@ -1,0 +1,5 @@
+{
+  "name": "NIFO ENGINE",
+  "description": "High-fidelity interface for Gemini 3 Pro reasoning engine.",
+  "requestFramePermissions": []
+}
