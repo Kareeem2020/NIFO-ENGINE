@@ -9,6 +9,9 @@ const ANIMATIONS = [
   'animate-[logo-shake_0.5s_ease-in-out]'
 ];
 
+// Re-use a single AudioContext to prevent hitting the browser's 6-context limit
+let sharedAudioCtx: AudioContext | null = null;
+
 interface LogoProps {
   className?: string;
 }
@@ -19,35 +22,43 @@ const Logo: React.FC<LogoProps> = ({ className = '' }) => {
 
   const playRandomSound = useCallback(() => {
     try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      if (!sharedAudioCtx) {
+        sharedAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      // Resume context if browser suspended it
+      if (sharedAudioCtx.state === 'suspended') {
+        sharedAudioCtx.resume();
+      }
+
+      const osc = sharedAudioCtx.createOscillator();
+      const gain = sharedAudioCtx.createGain();
       
       const profiles = [
         // 1. Premium Chime
         () => {
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1);
-          osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.5);
+          osc.frequency.setValueAtTime(880, sharedAudioCtx!.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1760, sharedAudioCtx!.currentTime + 0.1);
+          osc.frequency.exponentialRampToValueAtTime(440, sharedAudioCtx!.currentTime + 0.5);
         },
         // 2. Fun Warp
         () => {
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.3);
+          osc.frequency.setValueAtTime(200, sharedAudioCtx!.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1200, sharedAudioCtx!.currentTime + 0.3);
         },
         // 3. Digital Boop
         () => {
           osc.type = 'square';
-          osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-          osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
+          osc.frequency.setValueAtTime(300, sharedAudioCtx!.currentTime);
+          osc.frequency.setValueAtTime(600, sharedAudioCtx!.currentTime + 0.1);
         },
         // 4. Magic Sparkle
         () => {
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(2400, audioCtx.currentTime + 0.2);
+          osc.frequency.setValueAtTime(1200, sharedAudioCtx!.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(2400, sharedAudioCtx!.currentTime + 0.2);
         }
       ];
 
@@ -55,15 +66,15 @@ const Logo: React.FC<LogoProps> = ({ className = '' }) => {
       const profile = profiles[Math.floor(Math.random() * profiles.length)];
       profile();
       
-      gain.gain.setValueAtTime(0, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+      gain.gain.setValueAtTime(0, sharedAudioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.2, sharedAudioCtx.currentTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, sharedAudioCtx.currentTime + 0.5);
       
       osc.connect(gain);
-      gain.connect(audioCtx.destination);
+      gain.connect(sharedAudioCtx.destination);
       
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.5);
+      osc.stop(sharedAudioCtx.currentTime + 0.5);
     } catch (e) {
       console.error("Audio playback failed", e);
     }

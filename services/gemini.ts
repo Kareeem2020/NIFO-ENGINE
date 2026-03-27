@@ -1,14 +1,26 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let ai: GoogleGenAI | null = null;
+
+function getAIClient(): GoogleGenAI {
+  if (!ai) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is missing. Please add it to your environment variables.");
+    }
+    ai = new GoogleGenAI({ apiKey });
+  }
+  return ai;
+}
 
 export async function* streamResponse(
   history: { role: string; content: string }[],
   currentMessage: string
 ) {
   try {
-    const chat = ai.chats.create({
+    const client = getAIClient();
+    const chat = client.chats.create({
       model: 'gemini-3.1-pro-preview',
       config: {
         systemInstruction: `
@@ -85,15 +97,20 @@ export async function* streamResponse(
       }
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gemini Error:", error);
-    yield "\n\n[System Error]: Unable to generate response. Please try again.";
+    if (error.message?.includes("GEMINI_API_KEY is missing")) {
+      yield "\n\n[System Error]: GEMINI_API_KEY is missing. If you deployed this to Vercel, please add your Gemini API Key to the Vercel Environment Variables settings and redeploy.";
+    } else {
+      yield "\n\n[System Error]: Unable to generate response. Please try again.";
+    }
   }
 }
 
 export async function enhancePrompt(shortPrompt: string): Promise<string> {
   try {
-    const response = await ai.models.generateContent({
+    const client = getAIClient();
+    const response = await client.models.generateContent({
       model: 'gemini-3.1-pro-preview',
       contents: `You are an expert prompt engineer. The user wants to build a web UI but provided a lazy or short description: "${shortPrompt}".
       Please expand this into a highly detailed, descriptive, and visually evocative prompt that a Senior Frontend Architect AI can use to build a stunning, modern, glassmorphism web app.
@@ -103,8 +120,11 @@ export async function enhancePrompt(shortPrompt: string): Promise<string> {
       }
     });
     return response.text || shortPrompt;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gemini Enhance Error:", error);
+    if (error.message?.includes("GEMINI_API_KEY is missing")) {
+      alert("GEMINI_API_KEY is missing. Please add your Gemini API Key to your Vercel Environment Variables.");
+    }
     return shortPrompt;
   }
 }
